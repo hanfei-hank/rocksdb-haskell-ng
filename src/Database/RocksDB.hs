@@ -29,6 +29,7 @@ module Database.RocksDB
   , releaseIter
   , iterSeek
   , iterEntry
+  , iterPrev
   , iterNext
   , Iterator
   -- * Misc types
@@ -407,6 +408,10 @@ iterEntry iter =
            pure ((,) <$> mkey <*> mval)
          else pure Nothing)
 
+iterPrev :: MonadIO m => Iterator -> m ()
+iterPrev iter =
+  withIterPtr iter "iterPrev" (\iterPtr -> c_rocksdb_iter_prev iterPtr)
+
 iterNext :: MonadIO m => Iterator -> m ()
 iterNext iter =
   withIterPtr iter "iterNext" (\iterPtr -> c_rocksdb_iter_next iterPtr)
@@ -617,6 +622,9 @@ foreign import ccall safe "rocksdb/c.h rocksdb_iter_valid"
 
 foreign import ccall safe "rocksdb/c.h rocksdb_iter_seek"
   c_rocksdb_iter_seek :: Ptr CIterator -> CString -> CSize -> IO ()
+
+foreign import ccall safe "rocksdb/c.h rocksdb_iter_prev"
+  c_rocksdb_iter_prev :: Ptr CIterator -> IO ()
 
 foreign import ccall safe "rocksdb/c.h rocksdb_iter_next"
   c_rocksdb_iter_next :: Ptr CIterator -> IO ()
