@@ -632,7 +632,7 @@ foreign import ccall safe "rocksdb/c.h rocksdb_iter_destroy"
 foreign import ccall safe "rocksdb/c.h rocksdb_iter_valid"
   c_rocksdb_iter_valid :: Ptr CIterator -> IO Bool
 
-foreign import ccall safe "rocksdb/c.h rocksdb_iter_seek_prev"
+foreign import ccall safe "rocksdb/c.h rocksdb_iter_seek_for_prev"
   c_rocksdb_iter_seek_prev :: Ptr CIterator -> CString -> CSize -> IO ()
 
 foreign import ccall safe "rocksdb/c.h rocksdb_iter_seek"
