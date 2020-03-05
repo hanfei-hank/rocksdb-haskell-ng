@@ -27,6 +27,7 @@ module Database.RocksDB
   -- * Iterators
   , createIter
   , releaseIter
+  , iterSeekPrev
   , iterSeek
   , iterEntry
   , iterPrev
@@ -369,6 +370,17 @@ releaseIter iterator =
                       atomicModifyIORef' (iteratorRef iterator) (Nothing, )
                     maybe (pure ()) c_rocksdb_iter_destroy mptr)))))
 
+iterSeekPrev :: MonadIO m => Iterator -> ByteString -> m ()
+iterSeekPrev iter key =
+  withIterPtr
+    iter
+    "iterSeekPrev"
+    (\iterPtr ->
+       S.unsafeUseAsCStringLen
+         key
+         (\(key_ptr, klen) ->
+            c_rocksdb_iter_seek_prev iterPtr key_ptr (fromIntegral klen)))
+
 iterSeek :: MonadIO m => Iterator -> ByteString -> m ()
 iterSeek iter key =
   withIterPtr
@@ -619,6 +631,9 @@ foreign import ccall safe "rocksdb/c.h rocksdb_iter_destroy"
 
 foreign import ccall safe "rocksdb/c.h rocksdb_iter_valid"
   c_rocksdb_iter_valid :: Ptr CIterator -> IO Bool
+
+foreign import ccall safe "rocksdb/c.h rocksdb_iter_seek_prev"
+  c_rocksdb_iter_seek_prev :: Ptr CIterator -> CString -> CSize -> IO ()
 
 foreign import ccall safe "rocksdb/c.h rocksdb_iter_seek"
   c_rocksdb_iter_seek :: Ptr CIterator -> CString -> CSize -> IO ()
